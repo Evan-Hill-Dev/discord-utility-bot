@@ -1,24 +1,42 @@
+// Load environment variables from .env file
 require('dotenv').config();
+
 const { Client, GatewayIntentBits } = require('discord.js');
 const axios = require('axios');
 
+/**
+ * Discord Utility Bot
+ * 
+ * Responds to the following commands:
+ * - !ping: Check bot latency
+ * - !weather <city>: Get current weather from OpenWeather API
+ * - !ask <question>: Query OpenAI GPT API for a short response
+ * - !gif <term>: Fetch a random gif from Giphy
+ */
+
+// Initialize Discord client with necessary intents to read messages
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 });
 
+// Confirm bot is online
 client.once('ready', () => {
     console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
+// Listen for incoming messages
 client.on('messageCreate', async (message) => {
+    // Ignore messages from bots
     if (message.author.bot) return;
 
-    // !ping command
+    // ---------------------------------------
+    // !ping command - latency check
     if (message.content === '!ping') {
         message.reply(`🏓 Pong! Latency: ${Date.now() - message.createdTimestamp}ms`);
     }
 
-    // !weather command
+    // ---------------------------------------
+    // !weather command - fetch weather data from OpenWeather API
     if (message.content.startsWith('!weather')) {
         const args = message.content.split(' ').slice(1);
         const city = args.join(' ');
@@ -48,7 +66,8 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // !ask command
+    // ---------------------------------------
+    // !ask command - use OpenAI's ChatGPT to respond to a prompt
     if (message.content.startsWith('!ask')) {
         const prompt = message.content.replace('!ask', '').trim();
 
@@ -88,7 +107,8 @@ client.on('messageCreate', async (message) => {
         }
     }
 
-    // !gif command
+    // ---------------------------------------
+    // !gif command - fetch a random gif from Giphy based on search term
     if (message.content.startsWith('!gif')) {
         const query = message.content.replace('!gif', '').trim();
 
@@ -118,4 +138,5 @@ client.on('messageCreate', async (message) => {
     }
 });
 
+// Login the bot using token stored in .env file
 client.login(process.env.DISCORD_TOKEN);
